@@ -40,10 +40,19 @@ export class Game {
     constructor() {
         this.currentStage = STAGES.river_mouth;
         this.reset();
-        // Don't call changeStage here, let it be driven by store or init
-        // But for safety:
-        this.fish = [];
-        this.changeStage(this.currentStage.id);
+        
+        // Initialize based on Store state
+        const store = useGameStore.getState();
+        if (store.isTitleVisible) {
+            this.gameState = GameState.MENU;
+            // Spawn some decorative fish for title
+            this.fish = [];
+            for(let i=0; i<5; i++) {
+                 this.fish.push(new Fish(this.currentStage, Math.random() * 800, Math.random() * 600));
+            }
+        } else {
+            this.changeStage(store.currentStageId || 'river_mouth');
+        }
     }
 
     changeStage(stageId: string) {
@@ -82,7 +91,8 @@ export class Game {
         this.bobber.y = height - 50;
         
         const time = 45;
-        const finalTargetY = Math.max(targetY, height * 0.35);
+        const waterLevel = height * (this.currentStage.waterY ?? 0.35);
+        const finalTargetY = Math.max(targetY, waterLevel);
         const dX = targetX - this.bobber.x;
         const dY = finalTargetY - this.bobber.y;
         
@@ -96,7 +106,31 @@ export class Game {
     }
 
     update(width: number, height: number) {
-        if (this.gameState === GameState.MENU) return;
+        if (this.gameState === GameState.MENU) {
+            // Update Title Screen
+            // Spawn random ink/fish for background effect
+            if (this.frames % 60 === 0) {
+                // Add some ambient fish
+                const y = Math.random() * height;
+                this.fish.push(new Fish(this.currentStage, -100, y));
+            }
+            this.fish.forEach((f, index) => {
+                f.x += 2;
+                if (f.x > width + 100) this.fish.splice(index, 1);
+            });
+            this.frames++;
+
+            if (this.input.click || this.input.down) {
+                 this.gameState = GameState.IDLE;
+                 this.fish = []; // Clear title fish
+                 useGameStore.getState().setTitleVisible(false);
+                 this.changeStage('river_mouth'); // Start game proper
+                 this.input.click = false;
+                 this.input.down = false;
+                 soundManager.playSE('menu');
+            }
+            return;
+        }
 
         // Check for modal equivalent pause? 
         // In React, we might control this via prop "isPaused" passed to update
@@ -111,10 +145,11 @@ export class Game {
                 break;
             
             case GameState.CASTING:
+                const waterLevel = height * (this.currentStage.waterY ?? 0.35);
                 this.bobber.vy += CONFIG.gravity;
                 this.bobber.x += this.bobber.vx;
                 this.bobber.y += this.bobber.vy;
-                if (this.bobber.vy > 0 && this.bobber.y > height * 0.35) {
+                if (this.bobber.vy > 0 && this.bobber.y > waterLevel) {
                      this.gameState = GameState.WAITING;
                      this.bobber.vy = 0; this.bobber.vx = 0; this.bobber.submerged = true;
                      this.particles.push(new Particle(this.bobber.x, this.bobber.y, 'ripple', this.currentStage));
@@ -294,7 +329,77 @@ export class Game {
         this.gameState = GameState.IDLE;
     }
 
+    drawTitle(ctx: CanvasRenderingContext2D, width: number, height: number) {
+        // Wa (Japanese) Style Background
+        ctx.fillStyle = '#fcfaf2'; // Japanese paper (Washi) color
+        ctx.fillRect(0, 0, width, height);
+        
+        // Ink wash effect (Simple procedural cloud/smudge)
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = '#000';
+        for(let i=0; i<5; i++) {
+             const x = width/2 + Math.sin(this.frames * 0.01 + i) * 200;
+             const y = height/2 + Math.cos(this.frames * 0.013 + i) * 200;
+             const r = 150 + Math.sin(this.frames * 0.02) * 50;
+             ctx.beginPath();
+             ctx.arc(x, y, r, 0, Math.PI*2);
+             ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Silhouette Fish
+        ctx.fillStyle = '#1a1a1a'; // Ink black
+        this.fish.forEach(f => {
+            ctx.save();
+            ctx.translate(f.x, f.y);
+            // Draw simple fish silhouette
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 30, 10, 0, 0, Math.PI*2);
+            ctx.fill();
+            // Tail
+            ctx.beginPath();
+            ctx.moveTo(-15, 0); ctx.lineTo(-40, -10); ctx.lineTo(-40, 10); ctx.fill();
+            ctx.restore();
+        });
+
+        // Title Text (Vertical)
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+        
+        // Circle (Ensō)
+        ctx.strokeStyle = '#d93333';
+        ctx.lineWidth = 15;
+        ctx.beginPath();
+        const startAng = this.frames * 0.02;
+        ctx.arc(0, 0, 180, startAng, startAng + Math.PI * 1.5);
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        ctx.fillStyle = '#111';
+        ctx.font = 'bold 80px "Shippori Mincho", serif';
+        ctx.fillText("和釣り", 0, -20);
+        
+        ctx.font = '30px "Shippori Mincho", serif';
+        ctx.fillStyle = '#555';
+        ctx.fillText("Wa-Fishing", 0, 60);
+
+        // Tap to Start (Blinking)
+        const alpha = Math.abs(Math.sin(this.frames * 0.05));
+        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+        ctx.font = '24px sans-serif';
+        ctx.fillText("- TAP TO START -", 0, 200);
+
+        ctx.restore();
+    }
+
     draw(ctx: CanvasRenderingContext2D, width: number, height: number) {
+        if (this.gameState === GameState.MENU) {
+            this.drawTitle(ctx, width, height);
+            return;
+        }
+
         // Background
         const gradStops = this.currentStage.bgGradient;
         const grad = ctx.createLinearGradient(0, 0, 0, height);
@@ -310,7 +415,7 @@ export class Game {
         if (renderer && renderer.drawBg) renderer.drawBg(ctx, width, height, this.frames);
 
         // Moon
-        if (this.currentStage.id !== 'festival') {
+        if (this.currentStage.id !== 'festival' && this.currentStage.id !== 'stream') {
             ctx.shadowBlur = 50; ctx.shadowColor = '#ffeeb0'; ctx.fillStyle = '#ffeeb0';
             ctx.beginPath(); ctx.arc(width * 0.8, height * 0.15, 40, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
         }
@@ -319,7 +424,8 @@ export class Game {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
         for(let i=0; i<5; i++) {
             ctx.beginPath();
-            const y = height * 0.35 + 50 * i + Math.sin(this.frames * 0.02 + i) * 10;
+            const waterLevel = height * (this.currentStage.waterY ?? 0.35);
+            const y = waterLevel + 50 * i + Math.sin(this.frames * 0.02 + i) * 10;
             ctx.rect(0, y, width, 20); ctx.fill();
         }
 

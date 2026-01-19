@@ -119,7 +119,8 @@ export class Fish {
             }
             
             // Vertical bounds bounce
-            if (this.y < height * 0.35) this.vy += 0.05; 
+            const waterLevel = height * (stage.waterY ?? 0.35);
+            if (this.y < waterLevel) this.vy += 0.05; 
             if (this.y > height * 0.9) this.vy -= 0.05;
         }
 
@@ -130,7 +131,8 @@ export class Fish {
         this.vy *= 0.995;
 
         // Wrap around logic handles X, just clamp Y here
-        if (this.y < height * 0.35) { this.y = height * 0.35; this.vy = Math.abs(this.vy); }
+        const waterLevel = height * (stage.waterY ?? 0.35);
+        if (this.y < waterLevel) { this.y = waterLevel; this.vy = Math.abs(this.vy); }
         if (this.y > height - 50) { this.y = height - 50; this.vy = -Math.abs(this.vy); }
 
         // Update angle to face movement direction, but smooth it out

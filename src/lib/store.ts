@@ -10,6 +10,7 @@ interface GameState {
     resultFish: { type: FishType; size: number } | null;
     isResultModalOpen: boolean;
     isBookModalOpen: boolean;
+    isTitleVisible: boolean;
     hint: string;
     
     // Actions
@@ -23,6 +24,7 @@ interface GameState {
     closeResultModal: () => void;
     openBookModal: () => void;
     closeBookModal: () => void;
+    setTitleVisible: (visible: boolean) => void;
     setHint: (text: string) => void;
 }
 
@@ -33,11 +35,12 @@ export const useGameStore = create<GameState>()(
             score: 0,
             caughtHistory: new Set(),
             currentStageId: 'river_mouth',
-            isStageModalOpen: true,
+            isStageModalOpen: false, // Start closed for Title Screen
             resultFish: null,
             isResultModalOpen: false,
             isBookModalOpen: false,
-            hint: '画面をタップしてキャスト',
+            isTitleVisible: true,
+            hint: '', // Empty hint on title
 
             setScore: (score) => set({ score }),
             addScore: (amount) => set((state) => ({ score: state.score + amount })),
@@ -56,6 +59,7 @@ export const useGameStore = create<GameState>()(
             closeResultModal: () => set({ isResultModalOpen: false, resultFish: null }),
             openBookModal: () => set({ isBookModalOpen: true }),
             closeBookModal: () => set({ isBookModalOpen: false }),
+            setTitleVisible: (visible) => set({ isTitleVisible: visible }),
             setHint: (hint) => set({ hint }),
         }),
         {

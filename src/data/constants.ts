@@ -36,7 +36,8 @@ export const STAGES: Record<string, StageData> = {
         waterColor: '#354f46',
         flow: 2.5,
         fishCount: 8,
-        fishTypes: ['iwana', 'yamame', 'ayu']
+        fishTypes: ['iwana', 'yamame', 'ayu'],
+        waterY: 0.45 
     },
     pond: {
         id: 'pond',

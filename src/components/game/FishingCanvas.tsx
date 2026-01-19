@@ -14,8 +14,13 @@ export default function FishingCanvas() {
 
     // Effect to handle stage changes
     useEffect(() => {
-        if (gameRef.current && currentStageId) {
-            gameRef.current.changeStage(currentStageId);
+        // Prevent changing stage if we are in MENU (Title) state
+        // The Game class handles the transition from MENU to IDLE and calls changeStage internally
+        if (gameRef.current && currentStageId && gameRef.current.gameState !== GameState.MENU) {
+            // Check if actual stage change needed to avoid resetting on init
+            if (gameRef.current.currentStage.id !== currentStageId) {
+                gameRef.current.changeStage(currentStageId);
+            }
         }
     }, [currentStageId]);
 

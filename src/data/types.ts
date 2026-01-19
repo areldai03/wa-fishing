@@ -19,6 +19,7 @@ export interface StageData {
     flow: number;
     fishCount: number;
     fishTypes: string[];
+    waterY?: number; // Relative height (0.0 to 1.0) where water surface begins
 }
 
 export interface GameConfig {

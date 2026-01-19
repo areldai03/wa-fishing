@@ -8,13 +8,10 @@ import { useGameStore } from '@/lib/store';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function GameUI() {
-    const hint = "画面をタップしてキャスト"; // This should ideally come from store too, but for now mostly static or managed by Game class drawn on canvas?
-    // Actually, hint was drawn in HTML overlay in tmp.html. We should move it to React state.
-    // However, Game logic updates hint frequently. Syncing frequent updates to React might be perf heavy? 
-    // Maybe use a ref-connected signal or just render it on canvas?
-    // Let's stick to canvas or minimal overlay. 
-    // Wait, the store doesn't have hint yet.
+    const isTitleVisible = useGameStore((state) => state.isTitleVisible);
     
+    if (isTitleVisible) return null;
+
     return (
         <>
             <Header />
