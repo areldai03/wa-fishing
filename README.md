@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wa-Fishing (和釣り)
 
-## Getting Started
+「和」をテーマにした、ブラウザで遊べるリラックスフィッシングゲーム。
+美しい日本の風景の中で、様々な魚を釣り上げ、図鑑をコンプリートしましょう。
 
-First, run the development server:
+![Game Screen](public/app.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🎮 概要
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Next.js と HTML5 Canvas で構築された、シンプルながらも趣のある釣りゲームです。
+墨絵風のエフェクトや、四季折々の風景（河口、渓流、古池、縁日）を楽しみながら、釣り竿一本で大物を狙います。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ 特徴
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **「和」の美学**: 墨絵調のエフェクト、和紙風のUI、落ち着いたBGM（予定）が織りなす独特の世界観。
+- **4つの個性的なステージ**:
+  - **河口 (River Mouth)**: 夕暮れの都会の灯りと共に。スズキやクロダイが狙えます。
+  - **渓流 (Mountain Stream)**: 苔むした岩場と流れる滝。イワナやヤマメなどの清流魚が生息。
+  - **古池 (Old Pond)**: 静寂に包まれた池。巨大なコイやナマズ、伝説の魚も…？ (ヌシ)
+  - **縁日 (Festival)**: 賑やかな屋台の灯り。金魚すくいのような感覚で楽しめます。
+- **直感的な操作**: タップ/クリックだけで楽しめるシンプルな操作系。
+  - タップしてキャスト（投げる）
+  - 魚が食いついたらタイミングよくタップしてフッキング
+  - 長押しでリールを巻く / 離して糸の緩急をつける
+- **やり込み要素**: 釣った魚は自動的に記録され、コレクション要素として楽しめます。
 
-## Learn More
+## 🛠️ 技術スタック
 
-To learn more about Next.js, take a look at the following resources:
+![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![HTML5 Canvas](https://img.shields.io/badge/HTML5_Canvas-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![Zustand](https://img.shields.io/badge/Zustand-orange?style=for-the-badge&logo=react&logoColor=white)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Framework**: [Next.js](https://nextjs.org/) (React)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Graphics**: HTML5 Canvas API (Pure Canvas rendering for performant animations)
+- **State Management**: Zustand (w/ Persistence)
+- **Bundler**: Turbopack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 開発の始め方
 
-## Deploy on Vercel
+このプロジェクトは Dev Container 環境に対応しています。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. リポジトリをクローンします。
+2. 依存関係をインストールします:
+   ```bash
+   npm install
+   ```
+3. 開発サーバーを起動します:
+   ```bash
+   npm run dev
+   ```
+4. ブラウザで `http://localhost:3000` を開きます。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🕹️ 操作方法
+
+1. **タイトル画面**: 画面をタップしてスタート。
+2. **ステージ選択**: 上部のボタンから好きな釣り場へ移動できます。
+3. **釣り**:
+   - **キャスト**: 画面をタップするとウキを投げます（タップ位置が高いほど遠くへ飛びます）。
+   - **ヒット待ち**: ウキが沈むのを待ちます。「引いている！」の表示が出たらタップ！
+   - **ファイト**:
+     - 画面を**長押し**するとリールを巻いて魚を寄せます。
+     - 糸のテンションゲージが赤くなると切れそうになります。**指を離して**緩めましょう。
+     - うまく調整して手元まで寄せれば釣り上げ成功です。
+
+## 📄 ライセンス
+
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
+
+MIT License
